@@ -39,9 +39,9 @@
  * See https://www.freertos.org/a00110.html
  *----------------------------------------------------------*/
 
-#define configASSERT_DEFINED 1
-extern void vAssertCalled( void );
-#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( )
+/* Normal assert() semantics without relying on the provision of an assert.h
+header file. */
+#define configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); for( ;; ); }	
 
 #define configUSE_PREEMPTION        1
 #define configUSE_TIME_SLICING      1
