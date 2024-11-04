@@ -29,42 +29,27 @@
 #include <queue.h>
 #include <stdio.h>
 
-static void prvQueueReceiveTask( void *pvParameters );
-static void prvQueueSendTask( void *pvParameters );
-
-#define mainQUEUE_RECEIVE_TASK_PRIORITY     ( tskIDLE_PRIORITY + 2 )
-#define mainQUEUE_SEND_TASK_PRIORITY        ( tskIDLE_PRIORITY + 1 )
-#define mainQUEUE_LENGTH                    ( 1 )
-#define mainQUEUE_SEND_FREQUENCY_MS         ( 200 / portTICK_PERIOD_MS )
-/* The queue used by both tasks. */
-static QueueHandle_t xQueue = NULL;
+static void prvTask1( void *pvParameters );
+static void prvTask2( void *pvParameters );
 
 void main_blinky( void )
 {
-    /* Create the queue. */
-    xQueue = xQueueCreate( mainQUEUE_LENGTH, sizeof( uint32_t ) );
+    xTaskCreate( prvTask1,            /* The function that implements the task. */
+                "Task1",                            /* The text name assigned to the task - for debug only as it is not used by the kernel. */
+                configMINIMAL_STACK_SIZE,        /* The size of the stack to allocate to the task. */
+                NULL,                            /* The parameter passed to the task - not used in this case. */
+                2, /* The priority assigned to the task. */
+                NULL );                          /* The task handle is not required, so NULL is passed. */
 
-    if( xQueue != NULL )
-    {
-        /* Start the two tasks as described in the comments at the top of this
-        file. */
-        xTaskCreate( prvQueueReceiveTask,            /* The function that implements the task. */
-                    "Rx",                            /* The text name assigned to the task - for debug only as it is not used by the kernel. */
-                    configMINIMAL_STACK_SIZE,        /* The size of the stack to allocate to the task. */
-                    NULL,                            /* The parameter passed to the task - not used in this case. */
-                    mainQUEUE_RECEIVE_TASK_PRIORITY, /* The priority assigned to the task. */
-                    NULL );                          /* The task handle is not required, so NULL is passed. */
+    xTaskCreate( prvTask2,
+                "Task2",
+                configMINIMAL_STACK_SIZE,
+                NULL,
+                2,
+                NULL );
 
-        xTaskCreate( prvQueueSendTask,
-                    "TX",
-                    configMINIMAL_STACK_SIZE,
-                    NULL,
-                    mainQUEUE_SEND_TASK_PRIORITY,
-                    NULL );
-
-        /* Start the tasks and timer running. */
-        vTaskStartScheduler();
-    }
+    /* Start the tasks and timer running. */
+    vTaskStartScheduler();
 
     /* If all is well, the scheduler will now be running, and the following
     line will never be reached.  If the following line does execute, then
@@ -75,55 +60,19 @@ void main_blinky( void )
     for( ;; );
 }
 
-static void prvQueueSendTask( void *pvParameters )
+static void prvTask1( void *pvParameters )
 {
-TickType_t xNextWakeTime;
-const uint32_t ulValueToSend = 100UL;
-
-    /* Remove compiler warning about unused parameter. */
-    ( void ) pvParameters;
-
-    /* Initialise xNextWakeTime - this only needs to be done once. */
-    xNextWakeTime = xTaskGetTickCount();
-
     for( ;; )
     {
-        /* Place this task in the blocked state until it is time to run again. */
-        vTaskDelayUntil( &xNextWakeTime, mainQUEUE_SEND_FREQUENCY_MS );
-
-        /* Send to the queue - causing the queue receive task to unblock and
-        toggle the LED.  0 is used as the block time so the sending operation
-        will not block - it shouldn't need to block as the queue should always
-        be empty at this point in the code. */
-        xQueueSend( xQueue, &ulValueToSend, 0U );
+        printf("%s\n", __func__);
     }
 }
 
-volatile uint32_t ulRxEvents = 0;
-static void prvQueueReceiveTask( void *pvParameters )
+static void prvTask2( void *pvParameters )
 {
-uint32_t ulReceivedValue;
-const uint32_t ulExpectedValue = 100UL;
-
-    /* Remove compiler warning about unused parameter. */
-    ( void ) pvParameters;
-
     for( ;; )
     {
-        /* Wait until something arrives in the queue - this task will block
-        indefinitely provided INCLUDE_vTaskSuspend is set to 1 in
-        FreeRTOSConfig.h. */
-        xQueueReceive( xQueue, &ulReceivedValue, portMAX_DELAY );
-
-        /*  To get here something must have been received from the queue, but
-        is it the expected value?  If it is, toggle the LED. */
-        if( ulReceivedValue == ulExpectedValue )
-        {
-            printf("%s\n","blinking");
-            vTaskDelay(1000);
-            ulReceivedValue = 0U;
-            ulRxEvents++;
-        }
+        printf("%s\n", __func__);
     }
 }
 /*-----------------------------------------------------------*/
