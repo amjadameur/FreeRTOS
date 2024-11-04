@@ -43,6 +43,9 @@ extern void initialise_monitor_handles(void);
 
 int main ()
 {
+    SEGGER_SYSVIEW_Conf();
+    SEGGER_SYSVIEW_Start();
+
 #if (mainCREATE_SIMPLE_BLINKY_DEMO_ONLY == 1)
     {
     main_blinky();
