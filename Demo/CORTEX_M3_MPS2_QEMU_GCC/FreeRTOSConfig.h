@@ -78,6 +78,9 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelayUntil			1
 #define INCLUDE_vTaskDelay				1
 
+#define INCLUDE_xTaskGetIdleTaskHandle  1
+#define INCLUDE_pxTaskGetStackStart     1
+
 #define PRIO_BITS       		3        /* 7 priority levels */
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"
