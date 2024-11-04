@@ -138,4 +138,6 @@ extern void vLoggingPrintf( const char *pcFormatString, ... );
     vLoggingPrintf X
 #endif
 
+#include <SEGGER_SYSVIEW_FreeRTOS.h>
+
 #endif /* FREERTOS_CONFIG_H */

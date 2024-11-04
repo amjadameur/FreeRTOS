@@ -88,7 +88,7 @@ int _read(int file, char *buf, int len)
  * @param [in] len   length of the buffer
  * @returns the number of bytes written
  */
-int _write(int file, char *buf, int len)
+int __attribute__((weak)) _write(int file, char *buf, int len)
 {
     int todo;
 
